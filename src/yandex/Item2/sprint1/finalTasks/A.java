@@ -33,26 +33,23 @@ public class A {
     }
 
     private static int getNearestZeroIndex(int[] zeroIndexes, int indexOfNumber) {
-        int indexOfZero = 0;
         for (int i = 0; i < zeroIndexes.length; i++) {
             if (i == 0 && zeroIndexes[i] > indexOfNumber) {
-                indexOfZero = zeroIndexes[i] - indexOfNumber;
-                break;
+                return zeroIndexes[i] - indexOfNumber;
             }
 
             if (i + 1 != zeroIndexes.length && zeroIndexes[i] < indexOfNumber && indexOfNumber < zeroIndexes[i + 1]) {
                 int left = indexOfNumber - zeroIndexes[i];
                 int right = zeroIndexes[i + 1] - indexOfNumber;
-                indexOfZero = Math.min(left, right);
-                break;
+                return Math.min(left, right);
             }
 
             if (i == zeroIndexes.length - 1 && zeroIndexes[i] < indexOfNumber) {
-                indexOfZero = indexOfNumber - zeroIndexes[i];
-                break;
+                return indexOfNumber - zeroIndexes[i];
             }
         }
-        return indexOfZero;
+
+        return -1;
     }
 
     private static int[] getZeroIndexes(int length, int[] numbers) {
