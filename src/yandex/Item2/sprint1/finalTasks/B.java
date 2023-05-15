@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * ID посылки 87343737
+ */
 public class B {
 
     private static final int COUNT_STRINGS = 4;
