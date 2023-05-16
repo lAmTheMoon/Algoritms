@@ -9,7 +9,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * ID посылки 87343737
+ * ID посылки 87359230
  */
 public class B {
 
@@ -30,20 +30,20 @@ public class B {
     }
 
     private static long getMaximumPoints(int k, String symbols) {
-        Map<Integer, Long> numbers = parseToGroupingMap(symbols);
+        Map<Integer, Integer> numbers = parseToGroupingMap(symbols);
         int points = 0;
-        for (long num : numbers.values()) {
-            if ((int) num <= k * COUNT_FRIENDS) {
+        for (int num : numbers.values()) {
+            if (num <= k * COUNT_FRIENDS) {
                 points++;
             }
         }
         return points;
     }
 
-    private static Map<Integer, Long> parseToGroupingMap(String string) {
+    private static Map<Integer, Integer> parseToGroupingMap(String string) {
         return Arrays.stream(string.replaceAll("[^1-9]", "").split(""))
                 .filter(s -> !s.isEmpty())
                 .map(Integer::parseInt)
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+                .collect(Collectors.toMap(Function.identity(), num -> 1, Integer::sum));
     }
 }
