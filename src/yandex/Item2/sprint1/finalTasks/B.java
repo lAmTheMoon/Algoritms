@@ -31,13 +31,9 @@ public class B {
 
     private static long getMaximumPoints(int k, String symbols) {
         Map<Integer, Integer> numbers = parseToGroupingMap(symbols);
-        int points = 0;
-        for (int num : numbers.values()) {
-            if (num <= k * COUNT_FRIENDS) {
-                points++;
-            }
-        }
-        return points;
+        return numbers.values().stream()
+                .filter(num -> num <= k * COUNT_FRIENDS)
+                .count();
     }
 
     private static Map<Integer, Integer> parseToGroupingMap(String string) {
