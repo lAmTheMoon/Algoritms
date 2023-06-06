@@ -1,6 +1,6 @@
 package yandex.Item2.sprint2.tasks;
 
-public class Solution {
+public class C {
 
     public static void main(String[] args) {
         test();
