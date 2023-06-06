@@ -39,10 +39,8 @@ public class J {
     }
 
     private static class MyQueue {
-        private Node<Integer>[] queue = new Node[1000];
         private Node<Integer> head;
         private int size = 0;
-        private int index = 0;
 
         private boolean isEmpty() {
             return size == 0;
@@ -51,20 +49,27 @@ public class J {
         public void put(int x) {
             if (size == 0) {
                 head = new Node<>(x, null);
-                queue[index] = head;
             } else {
-                queue[index] = new Node<>(x, null);
+                Node nextNode = head;
+                while (true) {
+                    if (nextNode.next == null) {
+                        break;
+                    }
+                    nextNode = nextNode.next;
+                }
+                Node newNode = new Node<>(x, null);
+                nextNode.next = newNode;
             }
-
             size++;
-            index++;
         }
 
         public void get() {
             if (isEmpty()) {
-                System.out.println("None");
+                System.out.println("error");
             } else {
-                System.out.println(queue[head]);
+                System.out.println(head.value);
+                head = head.next;
+                size--;
             }
         }
 
