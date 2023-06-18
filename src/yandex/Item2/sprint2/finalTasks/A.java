@@ -6,6 +6,11 @@ import java.io.InputStreamReader;
 
 public class A {
 
+    public static final String PUSH_FRONT = "push_front";
+    public static final String PUSH_BACK = "push_back";
+    public static final String POP_FRONT = "pop_front";
+    public static final String POP_BACK = "pop_back";
+
     public static void main(String[] args) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
             int commandCount = Integer.parseInt(reader.readLine());
@@ -22,25 +27,23 @@ public class A {
 
     private static void printResult(int dequeCapacity, String[] commands) {
         MyQueue<String> queue = new MyQueue<>(dequeCapacity);
-        for (String str : commands) {
-            String[] command = str.split(" ");
-            switch (command[0]) {
-                case ("push_front"):
-                    queue.push_front(command[1]);
-                    break;
-                case ("push_back"):
-                    queue.push_back(command[1]);
-                    break;
-                case ("pop_front"):
-                    queue.pop_front();
-                    break;
-                case ("pop_back"):
-                    queue.pop_back();
-                    break;
-                default:
-                    throw new UnsupportedOperationException();
+        for (String command : commands) {
+            if (command.startsWith(PUSH_FRONT)){
+                queue.push_front(getValue(command));
+            } else if (command.startsWith(PUSH_BACK)){
+                queue.push_back(getValue(command));
+            } else if (POP_FRONT.equals(command)){
+                queue.pop_front();
+            } else if (POP_BACK.equals(command)){
+                queue.pop_back();
+            } else {
+                throw new UnsupportedOperationException();
             }
         }
+    }
+
+    private static String getValue(String command) {
+        return command.split(" ")[1];
     }
 }
 
