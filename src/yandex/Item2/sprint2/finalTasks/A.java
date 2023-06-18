@@ -4,6 +4,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * ID посылки 88336189
+ *
+ * Реализация на двусвязном списке, те каждый эл-т хранит ссылку на следующий и предыущий эл-ты
+ * Все методы работают за О(1)
+ * При добавлении эл-та в начало очереди я создаю новый эл-т, сохраняю head в поле previous, next = null
+ * в head записываю ссылку на новый эл-т в поле previous. В head записываю значение нового эл-та.
+ * При удалении эл-та из начала очереди я присваиваю head значение head.next и затираю ссылку на предыдущий эл-т
+ * При добавлении эл-та в конец очереди я создаю новый эл-т, сохраняю tail в поле next, previous = null
+ * в tail записываю ссылку на новый эл-т в поле next. В tail записываю значение нового эл-та.
+ * При удалении эл-та из конца очереди я присваиваю tail значение tail.previous и затираю ссылку на следующий эл-т
+ */
+
 public class A {
 
     public static final String PUSH_FRONT = "push_front";
@@ -28,14 +41,14 @@ public class A {
     private static void printResult(int dequeCapacity, String[] commands) {
         MyQueue<String> queue = new MyQueue<>(dequeCapacity);
         for (String command : commands) {
-            if (command.startsWith(PUSH_FRONT)){
-                queue.push_front(getValue(command));
-            } else if (command.startsWith(PUSH_BACK)){
-                queue.push_back(getValue(command));
-            } else if (POP_FRONT.equals(command)){
+            if (POP_FRONT.equals(command)) {
                 queue.pop_front();
-            } else if (POP_BACK.equals(command)){
+            } else if (POP_BACK.equals(command)) {
                 queue.pop_back();
+            } else if (command.startsWith(PUSH_FRONT)) {
+                queue.push_front(getValue(command));
+            } else if (command.startsWith(PUSH_BACK)) {
+                queue.push_back(getValue(command));
             } else {
                 throw new UnsupportedOperationException();
             }
@@ -69,13 +82,9 @@ class MyQueue<T> implements Deque<T> {
             return;
         }
         if (isEmpty()) {
-            head = new Node<>(value, null, null);
-            tail = head;
+            createFirstNode(value);
         } else {
             Node<T> newNode = new Node<>(value, head, null);
-            if (tail == head) {
-                tail.previous = newNode;
-            }
             head.previous = newNode;
             head = newNode;
         }
@@ -89,13 +98,9 @@ class MyQueue<T> implements Deque<T> {
             return;
         }
         if (isEmpty()) {
-            head = new Node<>(value, null, null);
-            tail = head;
+            createFirstNode(value);
         } else {
             Node<T> newNode = new Node<>(value, null, tail);
-            if (tail == head) {
-                head.next = newNode;
-            }
             tail.next = newNode;
             tail = newNode;
         }
@@ -136,6 +141,11 @@ class MyQueue<T> implements Deque<T> {
 
     private boolean isFull() {
         return size == capacity;
+    }
+
+    private void createFirstNode(T value) {
+        head = new Node<>(value, null, null);
+        tail = head;
     }
 
     private static class Node<V> {
