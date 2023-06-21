@@ -5,16 +5,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
- * ID посылки 88336189
- *
- * Реализация на двусвязном списке, те каждый эл-т хранит ссылку на следующий и предыущий эл-ты
+ * ID посылки 88415698
+ * <p>
+ * Реализация на деке с использованием кругового массива, очередь хранит индекс первого и последнего эл-ов
  * Все методы работают за О(1)
- * При добавлении эл-та в начало очереди я создаю новый эл-т, сохраняю head в поле previous, next = null
- * в head записываю ссылку на новый эл-т в поле previous. В head записываю значение нового эл-та.
- * При удалении эл-та из начала очереди я присваиваю head значение head.next и затираю ссылку на предыдущий эл-т
- * При добавлении эл-та в конец очереди я создаю новый эл-т, сохраняю tail в поле next, previous = null
- * в tail записываю ссылку на новый эл-т в поле next. В tail записываю значение нового эл-та.
- * При удалении эл-та из конца очереди я присваиваю tail значение tail.previous и затираю ссылку на следующий эл-т
+ * При добавлении эл-та в начало очереди, сохраняем в head индекс эл-та, если это первый эл-т, то tail = head,
+ * аналогично при добавлении в конец очереди.
+ * При удалении эл-та из начала очереди я присваиваю head предыдущего эл-та, если head == tail, значит,
+ * удаляем последний эл-т => head = tail = -1, аналогично для удаления последнего эл-та
  */
 
 public class A {
@@ -65,14 +63,17 @@ class MyQueue<T> implements Deque<T> {
     private static final String ERROR = "error";
 
     private final int capacity;
-
-    private Node<T> head;
-    private Node<T> tail;
-    private int size = 0;
-
+    private final Object[] objects;
+    private int head;
+    private int tail;
+    private int size;
 
     public MyQueue(int capacity) {
         this.capacity = capacity;
+        head = -1;
+        tail = -1;
+        size = 0;
+        objects = new Object[capacity];
     }
 
     @Override
@@ -81,13 +82,15 @@ class MyQueue<T> implements Deque<T> {
             System.out.println(ERROR);
             return;
         }
-        if (isEmpty()) {
-            createFirstNode(value);
+        if (head == -1) {
+            head = 0;
+            tail = 0;
+        } else if (head == 0) {
+            head = capacity - 1;
         } else {
-            Node<T> newNode = new Node<>(value, head, null);
-            head.previous = newNode;
-            head = newNode;
+            head = head - 1;
         }
+        objects[head] = value;
         size++;
     }
 
@@ -97,13 +100,15 @@ class MyQueue<T> implements Deque<T> {
             System.out.println(ERROR);
             return;
         }
-        if (isEmpty()) {
-            createFirstNode(value);
+        if (tail == -1) {
+            head = 0;
+            tail = 0;
+        } else if (tail == capacity - 1) {
+            tail = 0;
         } else {
-            Node<T> newNode = new Node<>(value, null, tail);
-            tail.next = newNode;
-            tail = newNode;
+            tail = tail + 1;
         }
+        objects[tail] = value;
         size++;
     }
 
@@ -112,10 +117,14 @@ class MyQueue<T> implements Deque<T> {
         if (isEmpty()) {
             System.out.println(ERROR);
         } else {
-            System.out.println(head.value);
-            head = head.next;
-            if (head != null) {
-                head.previous = null;
+            System.out.println(objects[head]);
+            if (head == tail) {
+                head = -1;
+                tail = -1;
+            } else if (head == capacity - 1) {
+                head = 0;
+            } else {
+                head = head + 1;
             }
             size--;
         }
@@ -126,10 +135,14 @@ class MyQueue<T> implements Deque<T> {
         if (isEmpty()) {
             System.out.println(ERROR);
         } else {
-            System.out.println(tail.value);
-            tail = tail.previous;
-            if (tail != null) {
-                tail.next = null;
+            System.out.println(objects[tail]);
+            if (head == tail) {
+                head = -1;
+                tail = -1;
+            } else if (tail == 0) {
+                tail = capacity - 1;
+            } else {
+                tail = tail - 1;
             }
             size--;
         }
@@ -141,23 +154,6 @@ class MyQueue<T> implements Deque<T> {
 
     private boolean isFull() {
         return size == capacity;
-    }
-
-    private void createFirstNode(T value) {
-        head = new Node<>(value, null, null);
-        tail = head;
-    }
-
-    private static class Node<V> {
-        private final V value;
-        private Node<V> next;
-        private Node<V> previous;
-
-        public Node(V value, Node<V> next, Node<V> previous) {
-            this.value = value;
-            this.next = next;
-            this.previous = previous;
-        }
     }
 }
 
