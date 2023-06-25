@@ -4,8 +4,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+/**
+ * ID посылки 88549352
+ *
+ * Алгоритм быстрой сортировки основан на рекурсивном вызове метода сортировки:
+ * Берем опорный эл-т, им явл-ся первый эл-т в отрезке, далее мы меняем местами эл-ты в переданном в параметры метода
+ * списке, в левую часть добавляем больший эл-т, а в правую меньший, пока левый указатель не больше правого.
+ * Возвращаем индекс последнего перемещенного эл-та - это и будет разделитель, делим лист на два промежутка,
+ * в которых повторяем выше описанный алгоритм до тех пор, пока указатели не столкнутся.
+ */
 
 public class B {
 
@@ -35,26 +46,18 @@ public class B {
         Contestant pivot = array.get(first);
         int left = first + 1;
         right = right - 1;
-        while (true) {
-            if (left <= right && array.get(right).compareTo(pivot) > 0) {
-                right -= 1;
-            } else if (left <= right && array.get(left).compareTo(pivot) < 0) {
-                left += 1;
-            } else if (array.get(right).compareTo(pivot) >= 0 || array.get(left).compareTo(pivot) <= 0) {
-                continue;
-            }
 
-            if (left <= right) {
-                Contestant contestant = array.get(left);
-                array.set(left, array.get(right));
-                array.set(right, contestant);
-            } else {
-                Contestant contestant = array.get(first);
-                array.set(first, array.get(right));
-                array.set(right, contestant);
-                return right;
+        while (true) {
+            right = array.get(right).compareTo(pivot) > 0 ? right - 1 : right;
+            left = array.get(left).compareTo(pivot) < 0 ? left + 1 : left;
+
+            if (left > right) {
+                Collections.swap(array, first, right);
+                break;
             }
+            Collections.swap(array, left, right);
         }
+        return right;
     }
 
     public static void quickSort(List<Contestant> array, int first, int last) {
