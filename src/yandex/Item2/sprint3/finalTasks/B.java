@@ -36,7 +36,7 @@ public class B {
 
     private static void sortContestantsAndPrint(List<Contestant> contestants) {
         quickSort(contestants, 0, contestants.size() - 1);
-        contestants.forEach(contestant -> System.out.println(contestant.getLogin()));
+        contestants.forEach(contestant -> System.out.println(contestant.toString()));
     }
 
     public static int getPartition(List<Contestant> array, int left, int right) {
@@ -89,10 +89,17 @@ class Contestant implements Comparable<Contestant> {
     public int compareTo(Contestant contestant) {
         if (Objects.equals(this.finishedTaskCount, contestant.finishedTaskCount)) {
             if (Objects.equals(this.penalty, contestant.penalty)) {
-                return contestant.login.compareTo(this.login);
+                return this.login.compareTo(contestant.login);
             }
             return contestant.penalty.compareTo(this.penalty);
         }
         return this.finishedTaskCount.compareTo(contestant.finishedTaskCount);
+    }
+
+    @Override
+    public String toString() {
+        return "login='" + login + '\'' +
+                ", finishedTaskCount=" + finishedTaskCount +
+                ", penalty=" + penalty;
     }
 }
