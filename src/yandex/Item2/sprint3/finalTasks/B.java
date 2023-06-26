@@ -3,16 +3,13 @@ package yandex.Item2.sprint3.finalTasks;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * ID посылки 88549352
  *
  * Алгоритм быстрой сортировки основан на рекурсивном вызове метода сортировки:
- * Берем опорный эл-т, им явл-ся первый эл-т в отрезке, далее мы меняем местами эл-ты в переданном в параметры метода
+ * Берем опорный эл-т, им явл-ся примерно средний эл-т в отрезке, далее мы меняем местами эл-ты в переданном в параметры метода
  * списке, в левую часть добавляем больший эл-т, а в правую меньший, пока левый указатель не больше правого.
  * Возвращаем индекс последнего перемещенного эл-та - это и будет разделитель, делим лист на два промежутка,
  * в которых повторяем выше описанный алгоритм до тех пор, пока указатели не столкнутся.
@@ -38,24 +35,26 @@ public class B {
     }
 
     private static void sortContestantsAndPrint(List<Contestant> contestants) {
-        quickSort(contestants, 0, contestants.size());
+        quickSort(contestants, 0, contestants.size() - 1);
         contestants.forEach(contestant -> System.out.println(contestant.getLogin()));
     }
 
-    public static int getPartition(List<Contestant> array, int first, int right) {
-        Contestant pivot = array.get(first);
-        int left = first + 1;
-        right = right - 1;
+    public static int getPartition(List<Contestant> array, int left, int right) {
+        int pivotIndex = (left + right) / 2;
+        Contestant pivot = array.get(pivotIndex);
 
-        while (true) {
-            right = array.get(right).compareTo(pivot) > 0 ? right - 1 : right;
-            left = array.get(left).compareTo(pivot) < 0 ? left + 1 : left;
-
-            if (left > right) {
-                Collections.swap(array, first, right);
-                break;
+        while (left <= right) {
+            while (array.get(left).compareTo(pivot) > 0) {
+                left++;
             }
-            Collections.swap(array, left, right);
+            while (array.get(right).compareTo(pivot) < 0) {
+                right--;
+            }
+            if (left <= right) {
+                Collections.swap(array, left, right);
+                left++;
+                right--;
+            }
         }
         return right;
     }
@@ -90,10 +89,10 @@ class Contestant implements Comparable<Contestant> {
     public int compareTo(Contestant contestant) {
         if (Objects.equals(this.finishedTaskCount, contestant.finishedTaskCount)) {
             if (Objects.equals(this.penalty, contestant.penalty)) {
-                return this.login.compareTo(contestant.login);
+                return contestant.login.compareTo(this.login);
             }
-            return this.penalty.compareTo(contestant.penalty);
+            return contestant.penalty.compareTo(this.penalty);
         }
-        return contestant.finishedTaskCount.compareTo(this.finishedTaskCount);
+        return this.finishedTaskCount.compareTo(contestant.finishedTaskCount);
     }
 }
