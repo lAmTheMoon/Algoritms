@@ -43,14 +43,14 @@ public class B {
     }
 
     public static int getPartition(List<Contestant> array, int left, int right) {
-        int pivotIndex = left + (right - left) / 2;
+        int pivotIndex = (left + right) / 2;
         Contestant pivot = array.get(pivotIndex);
 
         while (left <= right) {
-            while (left <= pivotIndex && array.get(left).compareTo(pivot) > 0) {
+            while (array.get(left).compareTo(pivot) > 0) {
                 left++;
             }
-            while (right > 0 && array.get(right).compareTo(pivot) < 0) {
+            while (array.get(right).compareTo(pivot) < 0) {
                 right--;
             }
             if (left <= right) {
@@ -59,16 +59,17 @@ public class B {
                 right--;
             }
         }
-        return right;
+        return left;
     }
 
     public static void quickSort(List<Contestant> array, int first, int last) {
-        if (last <= first) {
-            return;
-        }
         int partition = getPartition(array, first, last);
-        quickSort(array, first, partition);
-        quickSort(array, partition + 1, last);
+        if (first < partition - 1) {
+            quickSort(array, first, partition -1);
+        }
+        if (partition < last) {
+            quickSort(array, partition, last);
+        }
     }
 }
 
