@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * ID посылки 88549352
+ * ID посылки 88626398
  *
  * Алгоритм быстрой сортировки основан на рекурсивном вызове метода сортировки:
  * Берем опорный эл-т, им явл-ся примерно средний эл-т в отрезке, далее мы меняем местами эл-ты в переданном в параметры метода
@@ -39,7 +39,7 @@ public class B {
 
     private static void sortContestantsAndPrint(List<Contestant> contestants) {
         quickSort(contestants, 0, contestants.size() - 1);
-        contestants.forEach(contestant -> System.out.println(contestant.toString()));
+        contestants.forEach(contestant -> System.out.println(contestant.getLogin()));
     }
 
     public static int getPartition(List<Contestant> array, int left, int right) {
@@ -98,12 +98,5 @@ class Contestant implements Comparable<Contestant> {
             return this.penalty > contestant.penalty ? -1 : 1;
         }
         return this.finishedTaskCount > contestant.finishedTaskCount ? 1 : -1;
-    }
-
-    @Override
-    public String toString() {
-        return "login='" + login + '\'' +
-                ", finishedTaskCount=" + finishedTaskCount +
-                ", penalty=" + penalty;
     }
 }
