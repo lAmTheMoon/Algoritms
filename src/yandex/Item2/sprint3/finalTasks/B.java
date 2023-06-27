@@ -3,7 +3,10 @@ package yandex.Item2.sprint3.finalTasks;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * ID посылки 88549352
@@ -72,8 +75,8 @@ public class B {
 class Contestant implements Comparable<Contestant> {
 
     private final String login;
-    private final Integer finishedTaskCount;
-    private final Integer penalty;
+    private final int finishedTaskCount;
+    private final int penalty;
 
     public Contestant(String login, int finishedTaskCount, int penalty) {
         this.login = login;
@@ -89,11 +92,11 @@ class Contestant implements Comparable<Contestant> {
     public int compareTo(Contestant contestant) {
         if (Objects.equals(this.finishedTaskCount, contestant.finishedTaskCount)) {
             if (Objects.equals(this.penalty, contestant.penalty)) {
-                return this.login.compareTo(contestant.login);
+                return contestant.login.compareTo(this.login);
             }
-            return contestant.penalty.compareTo(this.penalty);
+            return this.penalty > contestant.penalty ? -1 : 1;
         }
-        return this.finishedTaskCount.compareTo(contestant.finishedTaskCount);
+        return this.finishedTaskCount > contestant.finishedTaskCount ? 1 : -1;
     }
 
     @Override
