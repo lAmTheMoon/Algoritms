@@ -7,12 +7,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * ID посылки 88626398
+ * ID посылки 88644469
  *
  * Алгоритм быстрой сортировки основан на рекурсивном вызове метода сортировки:
- * Берем опорный эл-т, им явл-ся примерно средний эл-т в отрезке, далее мы меняем местами эл-ты в переданном в параметры метода
+ * Берем случайный эл-т в отрезке, далее мы меняем местами эл-ты в переданном в параметры метода
  * списке, в левую часть добавляем больший эл-т, а в правую меньший, пока левый указатель не больше правого.
  * Возвращаем индекс последнего перемещенного эл-та - это и будет разделитель, делим лист на два промежутка,
  * в которых повторяем выше описанный алгоритм до тех пор, пока указатели не столкнутся.
@@ -38,12 +39,14 @@ public class B {
     }
 
     private static void sortContestantsAndPrint(List<Contestant> contestants) {
-        quickSort(contestants, 0, contestants.size() - 1);
+        if (contestants.size() > 1) {
+            quickSort(contestants, 0, contestants.size() - 1);
+        }
         contestants.forEach(contestant -> System.out.println(contestant.getLogin()));
     }
 
     public static int getPartition(List<Contestant> array, int left, int right) {
-        int pivotIndex = (left + right) / 2;
+        int pivotIndex = ThreadLocalRandom.current().nextInt(left, right + 1);
         Contestant pivot = array.get(pivotIndex);
 
         while (left <= right) {
@@ -65,7 +68,7 @@ public class B {
     public static void quickSort(List<Contestant> array, int first, int last) {
         int partition = getPartition(array, first, last);
         if (first < partition - 1) {
-            quickSort(array, first, partition -1);
+            quickSort(array, first, partition - 1);
         }
         if (partition < last) {
             quickSort(array, partition, last);
