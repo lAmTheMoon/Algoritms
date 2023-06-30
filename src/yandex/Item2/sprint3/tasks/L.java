@@ -55,7 +55,7 @@ public class L {
         return -1;
     }
 
-    static int[] parseString(String string) {
+    private static int[] parseString(String string) {
         return Arrays.stream(string.split(" "))
                 .mapToInt(Integer::parseInt)
                 .toArray();
