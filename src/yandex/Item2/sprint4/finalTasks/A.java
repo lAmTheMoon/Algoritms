@@ -8,10 +8,9 @@ import java.util.stream.Collectors;
 
 public class A {
 
-    private static StringBuilder sb = new StringBuilder();
-
     public static void main(String[] args) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+
             int firstCount = Integer.parseInt(reader.readLine());
             List<List<String>> headers = new ArrayList<>(firstCount);
             for (int i = 1; i <= firstCount; i++) {
@@ -19,45 +18,52 @@ public class A {
             }
 
             int secondCount = Integer.parseInt(reader.readLine());
-            List<List<String>> questions = new ArrayList<>(secondCount);
+            List<Set<String>> questions = new ArrayList<>(secondCount);
             for (int i = 0; i < secondCount; i++) {
-                questions.add(getListFromStrings(reader));
+                questions.add(getSetFromStrings(reader));
             }
 
-            Map<String, Set<Integer>> dictionary = fillDictionary(headers);
-
-            questions.forEach(question -> {
-                Set<Integer> headersIndex = new HashSet<>();
-                for (String str : question) {
-                    if (dictionary.containsKey(str)) {
-                        headersIndex.addAll(dictionary.get(str));
-                    }
-                }
-
-                Map<Integer, Integer> result = new HashMap<>();
-                headersIndex.forEach(idx -> {
-                    Set<Integer> headerIndexes = new HashSet<>();
-                    List<String> header = headers.get(idx);
-                    for (int i = 0; i < header.size(); i++) {
-                        if (question.contains(header.get(i))) {
-                            headerIndexes.add(i);
-                        }
-                    }
-                    result.put(idx, headerIndexes.size());
-                });
-
-                result.entrySet().stream()
-                        .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
-                        .limit(5)
-                        .forEach(k -> sb.append(k.getKey() + 1).append(" "));
-                sb.append("\n");
-            });
-
-            System.out.println(sb.toString());
+            System.out.println(getInfoAboutResult(headers, questions));
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String getInfoAboutResult(List<List<String>> headers, List<Set<String>> questions) {
+        Map<String, Map<Integer, Integer>> dictionary = fillDictionary(headers);
+        StringBuilder sb = new StringBuilder();
+
+        questions.forEach(question -> {
+            Map<Integer, Integer> result = getPriorityMap(dictionary, question);
+
+            sortPriorityMapAndSafeInfo(result, sb);
+        });
+
+        return sb.toString();
+    }
+
+    private static void sortPriorityMapAndSafeInfo(Map<Integer, Integer> result, StringBuilder sb) {
+        result.entrySet().stream()
+                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed()
+                        .thenComparing(Map.Entry.comparingByKey()))
+                .limit(5)
+                .forEach(k -> sb.append(k.getKey() + 1).append(" "));
+        sb.append("\n");
+    }
+
+    private static Map<Integer, Integer> getPriorityMap(Map<String, Map<Integer, Integer>> dictionary,
+                                                        Set<String> question) {
+        Map<Integer, Integer> result = new HashMap<>();
+
+        question.stream()
+                .map(dictionary::get)
+                .filter(Objects::nonNull)
+                .map(Map::entrySet)
+                .flatMap(Collection::stream)
+                .forEach(entry -> result.merge(entry.getKey(), entry.getValue(), Integer::sum));
+
+        return result;
     }
 
     private static List<String> getListFromStrings(BufferedReader reader) throws IOException {
@@ -65,16 +71,21 @@ public class A {
                 .collect(Collectors.toList());
     }
 
-    private static Map<String, Set<Integer>> fillDictionary(List<List<String>> headings) {
-        Map<String, Set<Integer>> dictionary = new HashMap<>();
+    private static Set<String> getSetFromStrings(BufferedReader reader) throws IOException {
+        return Arrays.stream(reader.readLine().split(" "))
+                .collect(Collectors.toSet());
+    }
+
+    private static Map<String, Map<Integer, Integer>> fillDictionary(List<List<String>> headings) {
+        Map<String, Map<Integer, Integer>> dictionary = new HashMap<>();
         for (int i = 0; i < headings.size(); i++) {
             for (String word : headings.get(i)) {
                 if (dictionary.containsKey(word)) {
-                    dictionary.get(word).add(i);
+                    dictionary.get(word).merge(i, 1, Integer::sum);
                 } else {
-                    Set<Integer> headersIndex = new HashSet<>();
-                    headersIndex.add(i);
-                    dictionary.put(word, headersIndex);
+                    Map<Integer, Integer> headersIndexAndCount = new HashMap<>();
+                    headersIndexAndCount.put(i, 1);
+                    dictionary.put(word, headersIndexAndCount);
                 }
             }
         }
