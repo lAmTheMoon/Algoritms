@@ -6,6 +6,10 @@ import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * ID посылки 88871968
+ *
+ */
 public class A {
 
     public static void main(String[] args) {
@@ -36,7 +40,6 @@ public class A {
 
         questions.forEach(question -> {
             Map<Integer, Integer> result = getPriorityMap(dictionary, question);
-
             sortPriorityMapAndSafeInfo(result, sb);
         });
 
