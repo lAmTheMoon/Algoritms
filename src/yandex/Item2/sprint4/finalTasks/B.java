@@ -3,7 +3,6 @@ package yandex.Item2.sprint4.finalTasks;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 
 public class B {
 
@@ -25,26 +24,23 @@ public class B {
     }
 
     private static void printResult(String[] commands) {
-        MyMap<Integer, Integer> map = new MyMap<>();
+        MyMap<String, String> map = new MyMap<>();
         for (String command : commands) {
             if (command.startsWith(GET)) {
-                map.get(getValue(command)[0]);
+                map.get(getValue(command)[1]);
             } else if (command.startsWith(PUT)) {
-                int[] numbers = getValue(command);
-                map.put(numbers[0], numbers[1]);
+                String[] entry = getValue(command);
+                map.put(entry[1], entry[2]);
             } else if (command.startsWith(DELETE)) {
-                map.delete(getValue(command)[0]);
+                map.delete(getValue(command)[1]);
             } else {
                 throw new UnsupportedOperationException();
             }
         }
     }
 
-    private static int[] getValue(String command) {
-        return Arrays.stream(command.split(" "))
-                .skip(1)
-                .mapToInt(Integer::parseInt)
-                .toArray();
+    private static String[] getValue(String command) {
+        return command.split(" ");
     }
 }
 
@@ -56,32 +52,28 @@ class MyMap<K, V> implements Map<K, V> {
 
     @Override
     public void put(K k, V v) {
+        Entry<K, V>[] e = getEntryPairIfIsExist(k);
         int index = getHash(k);
-        if (!keyIsExist(k)) {
-            Entry<K, V> e = entry[index];
-            if (e != null) {
-                while (true) {
-                    if (e.getNext() == null) {
-                        Entry<K, V> newEntry = new Entry<>(k, v, null, e);
-                        e.setNext(newEntry);
-                        break;
-                    }
-                    e = e.getNext();
-                }
-                return;
+        if (e.length != 0) {
+            Entry<K, V> prev = e[1];
+            Entry<K, V> newEntry = new Entry<>(k, v, e[0].getNext());
+            if (prev != null) {
+                prev.setNext(newEntry);
             }
-        }
+            entry[index] = newEntry;
 
-        entry[index] = new Entry<>(k, v, null, null);
+        } else {
+            entry[index] = new Entry<>(k, v, null);
+        }
     }
 
     @Override
     public void get(K k) {
-        if (!entryIsExist(k)) {
+        Entry<K, V> e = getEntryIfIsExist(k);
+        if (e == null) {
             System.out.println("None");
             return;
         }
-        Entry<K, V> e = entry[getHash(k)];
         while (true) {
             if (k.equals(e.getKey())) {
                 System.out.println(e.getValue());
@@ -94,43 +86,33 @@ class MyMap<K, V> implements Map<K, V> {
 
     @Override
     public void delete(K k) {
-        if (!entryIsExist(k)) {
+        Entry<K, V>[] e = getEntryPairIfIsExist(k);
+        if (e.length == 0) {
             System.out.println("None");
             return;
         }
-        int index = getHash(k);
-        Entry<K, V> e = entry[index];
-        while (true) {
-            if (k.equals(e.getKey())) {
-                Entry<K, V> next = e.getNext();
-                Entry<K, V> before = e.getBefore();
-                if (before != null) {
-                    before.setNext(next);
-                }
-                if (next != null) {
-                    next.setBefore(before);
-                }
-                System.out.println(e.getValue());
-                break;
-            } else if (e.getNext() != null) {
-                e = e.getNext();
-            }
+
+        Entry<K, V> before = e[1];
+        if (before != null) {
+            before.setNext(e[0].getNext());
         }
-        if (e.getNext() == null && e.getBefore() == null) {
-            entry[index] = null;
+        System.out.println(e[0].getValue());
+        if (e[0].getNext() == null) {
+            entry[getHash(k)] = null;
         }
+
     }
 
     private int getHash(K k) {
         return Math.abs(k.hashCode()) % CAPACITY;
     }
 
-    private boolean entryIsExist(K k) {
+    private Entry<K, V> getEntryIfIsExist(K k) {
         Entry<K, V> e = entry[getHash(k)];
         if (e != null) {
             while (true) {
                 if (k.equals(e.getKey())) {
-                    return true;
+                    return e;
                 } else if (e.getNext() == null) {
                     break;
                 } else {
@@ -138,11 +120,25 @@ class MyMap<K, V> implements Map<K, V> {
                 }
             }
         }
-        return false;
+        return null;
     }
 
-    private boolean keyIsExist(K k) {
-        return entry[getHash(k)] != null;
+    private Entry<K, V>[] getEntryPairIfIsExist(K k) {
+        Entry<K, V> current = entry[getHash(k)];
+        if (current != null) {
+            Entry<K, V> prew = null;
+            while (true) {
+                if (k.equals(current.getKey())) {
+                    return new Entry[] {current, prew};
+                } else if (current.getNext() == null) {
+                    break;
+                } else {
+                    prew = current;
+                    current = current.getNext();
+                }
+            }
+        }
+        return new Entry[0];
     }
 }
 
@@ -160,21 +156,11 @@ class Entry<K, V> {
     private K key;
     private V value;
     private Entry<K, V> next;
-    private Entry<K, V> before;
 
-    public Entry(K key, V value, Entry<K, V> next, Entry<K, V> before) {
+    public Entry(K key, V value, Entry<K, V> next) {
         this.key = key;
         this.value = value;
         this.next = next;
-        this.before = before;
-    }
-
-    public Entry<K, V> getBefore() {
-        return before;
-    }
-
-    public void setBefore(Entry<K, V> before) {
-        this.before = before;
     }
 
     public K getKey() {
