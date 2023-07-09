@@ -4,6 +4,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * ID посылки 88915968
+ *
+ * Реализованная мапа представляет собой обертку над массивом длины 10^5, который состоит из объектов Entry.
+ * Entry - объект, содержащий объект, который является ключем мапы, и объект, который явсяется значением мапы,
+ * также присутствует ссылка на следующий Entry, на случай возникновения коллизии.
+ * Коллизии разрешаются методом цепочек.
+ * Методы мапы в лучшем случае работают за O(1), в худшем - O(N), где N - кол-во объектов с одинаковым индексом
+ */
 public class B {
 
     private static final String GET = "get";
@@ -19,15 +28,13 @@ public class B {
                 String[] entry = reader.readLine().split(" ");
                 switch (entry[0]) {
                     case GET:
-                        sb.append(map.get(entry[1]));
-                        sb.append("\n");
+                        writeResult(map.get(entry[1]));
                         break;
                     case PUT:
                         map.put(entry[1], entry[2]);
                         break;
                     case DELETE:
-                        sb.append(map.delete(entry[1]));
-                        sb.append("\n");
+                        writeResult(map.delete(entry[1]));
                         break;
                     default:
                         throw new UnsupportedOperationException();
@@ -37,6 +44,11 @@ public class B {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void writeResult(String result) {
+        sb.append(result);
+        sb.append("\n");
     }
 }
 
@@ -49,7 +61,7 @@ class MyMap<K, V> implements Map<K, V> {
 
     @Override
     public void put(K k, V v) {
-        int index = getHash(k);
+        int index = getIndex(k);
         Entry<K, V>[] e = getEntryPairIfIsExist(k, index);
         if (e.length == 0) {
             entry[index] = new Entry<>(k, v, null);
@@ -64,7 +76,7 @@ class MyMap<K, V> implements Map<K, V> {
 
     @Override
     public String get(K k) {
-        Entry<K, V> e = getEntryIfIsExist(k, getHash(k));
+        Entry<K, V> e = getEntryIfIsExist(k, getIndex(k));
         if (e == null) {
             return NONE;
         }
@@ -73,7 +85,7 @@ class MyMap<K, V> implements Map<K, V> {
 
     @Override
     public String delete(K k) {
-        int index = getHash(k);
+        int index = getIndex(k);
         Entry<K, V>[] e = getEntryPairIfIsExist(k, index);
         if (e.length == 0 || e[0] == null) {
             return NONE;
@@ -91,7 +103,7 @@ class MyMap<K, V> implements Map<K, V> {
         return e[0].getValue().toString();
     }
 
-    private int getHash(K k) {
+    private int getIndex(K k) {
         return Math.abs(k.hashCode() % CAPACITY);
     }
 
