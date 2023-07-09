@@ -6,40 +6,36 @@ import java.io.InputStreamReader;
 
 public class B {
 
-    public static final String GET = "get";
-    public static final String PUT = "put";
-    public static final String DELETE = "delete";
+    private static final String GET = "get";
+    private static final String PUT = "put";
+    private static final String DELETE = "delete";
+    private static final StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
             int commandCount = Integer.parseInt(reader.readLine());
-            String[] commands = new String[commandCount];
+            MyMap<String, String> map = new MyMap<>();
             for (int i = 0; i < commandCount; i++) {
-                commands[i] = reader.readLine();
+                String[] entry = reader.readLine().split(" ");
+                switch (entry[0]) {
+                    case GET:
+                        sb.append(map.get(entry[1]));
+                        sb.append("\n");
+                        break;
+                    case PUT:
+                        map.put(entry[1], entry[2]);
+                        break;
+                    case DELETE:
+                        sb.append(map.delete(entry[1]));
+                        sb.append("\n");
+                        break;
+                    default:
+                        throw new UnsupportedOperationException();
+                }
             }
-            printResult(commands);
+            System.out.println(sb);
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    private static void printResult(String[] commands) {
-        MyMap<String, String> map = new MyMap<>();
-        for (String command : commands) {
-            String[] entry = command.split(" ");
-            switch (entry[0]) {
-                case GET:
-                    map.get(entry[1]);
-                    break;
-                case PUT:
-                    map.put(entry[1], entry[2]);
-                    break;
-                case DELETE:
-                    map.delete(entry[1]);
-                    break;
-                default:
-                    throw new UnsupportedOperationException();
-            }
         }
     }
 }
@@ -47,68 +43,60 @@ public class B {
 class MyMap<K, V> implements Map<K, V> {
 
     private static final int CAPACITY = 100000;
+    private static final String NONE = "None";
 
     private final Entry<K, V>[] entry = new Entry[CAPACITY];
 
     @Override
     public void put(K k, V v) {
-        Entry<K, V>[] e = getEntryPairIfIsExist(k);
         int index = getHash(k);
-        if (e.length != 0) {
-            Entry<K, V> prev = e[1];
-            Entry<K, V> newEntry = new Entry<>(k, v, e[0].getNext());
-            if (prev != null) {
-                prev.setNext(newEntry);
-            }
-            entry[index] = newEntry;
-
-        } else {
-            entry[index] = new Entry<>(k, v, null);
-        }
-    }
-
-    @Override
-    public void get(K k) {
-        Entry<K, V> e = getEntryIfIsExist(k);
-        if (e == null) {
-            System.out.println("None");
-            return;
-        }
-        while (true) {
-            if (k.equals(e.getKey())) {
-                System.out.println(e.getValue());
-                break;
-            } else if (e.getNext() != null) {
-                e = e.getNext();
-            }
-        }
-    }
-
-    @Override
-    public void delete(K k) {
-        Entry<K, V>[] e = getEntryPairIfIsExist(k);
+        Entry<K, V>[] e = getEntryPairIfIsExist(k, index);
         if (e.length == 0) {
-            System.out.println("None");
-            return;
+            entry[index] = new Entry<>(k, v, null);
+        } else {
+            if (e[0] != null) {
+                e[0].setValue(v);
+            } else {
+                e[1].setNext(new Entry<>(k, v, null));
+            }
+        }
+    }
+
+    @Override
+    public String get(K k) {
+        Entry<K, V> e = getEntryIfIsExist(k, getHash(k));
+        if (e == null) {
+            return NONE;
+        }
+        return e.getValue().toString();
+    }
+
+    @Override
+    public String delete(K k) {
+        int index = getHash(k);
+        Entry<K, V>[] e = getEntryPairIfIsExist(k, index);
+        if (e.length == 0 || e[0] == null) {
+            return NONE;
         }
 
         Entry<K, V> before = e[1];
         if (before != null) {
             before.setNext(e[0].getNext());
         }
-        System.out.println(e[0].getValue());
-        if (e[0].getNext() == null) {
-            entry[getHash(k)] = null;
+
+        if (k.equals(entry[index].getKey())) {
+            entry[index] = null;
         }
 
+        return e[0].getValue().toString();
     }
 
     private int getHash(K k) {
-        return Math.abs(k.hashCode()) % CAPACITY;
+        return Math.abs(k.hashCode() % CAPACITY);
     }
 
-    private Entry<K, V> getEntryIfIsExist(K k) {
-        Entry<K, V> e = entry[getHash(k)];
+    private Entry<K, V> getEntryIfIsExist(K k, int index) {
+        Entry<K, V> e = entry[index];
         if (e != null) {
             while (true) {
                 if (k.equals(e.getKey())) {
@@ -123,15 +111,15 @@ class MyMap<K, V> implements Map<K, V> {
         return null;
     }
 
-    private Entry<K, V>[] getEntryPairIfIsExist(K k) {
-        Entry<K, V> current = entry[getHash(k)];
+    private Entry<K, V>[] getEntryPairIfIsExist(K k, int index) {
+        Entry<K, V> current = entry[index];
         if (current != null) {
             Entry<K, V> prew = null;
             while (true) {
                 if (k.equals(current.getKey())) {
                     return new Entry[]{current, prew};
                 } else if (current.getNext() == null) {
-                    break;
+                    return new Entry[]{null, current};
                 } else {
                     prew = current;
                     current = current.getNext();
@@ -146,9 +134,9 @@ interface Map<K, V> {
 
     void put(K k, V v);
 
-    void get(K k);
+    String get(K k);
 
-    void delete(K k);
+    String delete(K k);
 }
 
 class Entry<K, V> {
