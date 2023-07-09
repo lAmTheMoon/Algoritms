@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * ID посылки 88871968
+ * ID посылки 88925211
  *
  * На первом этапе формируется список из документов, который в дальнейшем преобразовывается в мапу(словарь),
  * где ключ - Слово, встречающееся в документах, значение тоже мапа, где ключ - индекс документа,
@@ -22,6 +22,9 @@ import java.util.stream.Collectors;
  * Временная сложность - O(N^2)
  */
 public class A {
+
+    public static final int MAX_RESULT_SIZE = 5;
+    public static final int SHIFT = 1;
 
     public static void main(String[] args) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
@@ -61,8 +64,8 @@ public class A {
         result.entrySet().stream()
                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed()
                         .thenComparing(Map.Entry.comparingByKey()))
-                .limit(5)
-                .forEach(k -> sb.append(k.getKey() + 1).append(" "));
+                .limit(MAX_RESULT_SIZE)
+                .forEach(k -> sb.append(k.getKey() + SHIFT).append(" "));
         sb.append("\n");
     }
 
