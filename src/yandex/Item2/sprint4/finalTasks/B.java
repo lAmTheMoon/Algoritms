@@ -26,21 +26,21 @@ public class B {
     private static void printResult(String[] commands) {
         MyMap<String, String> map = new MyMap<>();
         for (String command : commands) {
-            if (command.startsWith(GET)) {
-                map.get(getValue(command)[1]);
-            } else if (command.startsWith(PUT)) {
-                String[] entry = getValue(command);
-                map.put(entry[1], entry[2]);
-            } else if (command.startsWith(DELETE)) {
-                map.delete(getValue(command)[1]);
-            } else {
-                throw new UnsupportedOperationException();
+            String[] entry = command.split(" ");
+            switch (entry[0]) {
+                case GET:
+                    map.get(entry[1]);
+                    break;
+                case PUT:
+                    map.put(entry[1], entry[2]);
+                    break;
+                case DELETE:
+                    map.delete(entry[1]);
+                    break;
+                default:
+                    throw new UnsupportedOperationException();
             }
         }
-    }
-
-    private static String[] getValue(String command) {
-        return command.split(" ");
     }
 }
 
@@ -129,7 +129,7 @@ class MyMap<K, V> implements Map<K, V> {
             Entry<K, V> prew = null;
             while (true) {
                 if (k.equals(current.getKey())) {
-                    return new Entry[] {current, prew};
+                    return new Entry[]{current, prew};
                 } else if (current.getNext() == null) {
                     break;
                 } else {
