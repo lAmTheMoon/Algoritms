@@ -3,47 +3,38 @@ package yandex.Item2.sprint3.tasks;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class H {
-
-    private static final StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
             int count = Integer.parseInt(reader.readLine());
-            String[] array = reader.readLine().split(" ");
+            List<String> array = Arrays.stream(reader.readLine().split(" ")).collect(Collectors.toList());
 
             sortArray(count, array);
 
-            for (int i = count - 1; i >= 0; i--) {
-                sb.append(array[i]);
-            }
-            System.out.println(sb);
+            array.forEach(System.out::print);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void sortArray(int count, String[] array) {
-        for (int i = count - 1; i > 0; i--) {
-            boolean flag = false;
-            for (int j = 0; j < i; j++) {
-                int o1 = 0;
-                int o2 = 0;
-                while (o1 <= o2) {
-                    o1 = array[j].charAt(0);
-                    o2 = array[j + 1].charAt(0);
-                }
-                if (o1 > o2) {
-                    String temp = array[j];
-                    array[j] = array[j + 1];
-                    array[j + 1] = temp;
-                    flag = true;
-                }
-            }
-            if (!flag) {
-                return;
+    private static void sortArray(int size, List<String> array) {
+        for (int i = 0; i < size; i++) {
+            String num = array.get(i);
+            int j = i;
+            while (j > 0 && compare(num, array.get(j - 1))) {
+                array.set(j, array.get(j - 1));
+                j--;
+                array.set(j, num);
             }
         }
+    }
+
+    private static boolean compare(String obj1, String obj2) {
+        return (obj1 + obj2).compareTo(obj2 + obj1) > 0;
     }
 }
