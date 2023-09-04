@@ -8,35 +8,23 @@ public class A {
 
     public static void main(String[] args) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
-            long q = Integer.parseInt(reader.readLine());
-            long r = Integer.parseInt(reader.readLine());
-            char[] chars = reader.readLine().toCharArray();
+            long base = Long.parseLong(reader.readLine());
+            long mod = Long.parseLong(reader.readLine());
+            String array = reader.readLine();
 
-            System.out.println(getResult(chars, q, r));
+            System.out.println(getResult(array, base, mod));
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static long getResult(char[] chars, long q, long r) {
-        if (chars.length == 0) {
-            return 0;
-        }
-        if (chars.length == 1) {
-            return Math.floorMod(chars[0], r);
-        }
-        long result = 0;
-        int c = 1;
+    private static long getResult(String array, long base, long mod) {
+        long hash = 0L;
 
-        for (int i = 0; i < chars.length - 2; i++) {
-            long t = (long) Math.pow(q, chars.length - c++);
-            System.out.println("CCCC" +t);
-            result = Math.floorMod(chars[i] * t, r) + result;
-            System.out.println(result);
+        for (int i = 0; i < array.length(); i++) {
+            hash = (hash * base + array.charAt(i)) % mod;
         }
-        result = Math.floorMod(chars[chars.length - 2] * q, r) + result;
-        System.out.println(result);
-        return Math.floorMod(chars[chars.length - 1], r) + result;
+        return hash;
     }
 }
