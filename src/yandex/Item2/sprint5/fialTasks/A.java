@@ -7,9 +7,26 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
+
+/**
+ * ID посылки 91810556
+ *
+ * Чтобы отсортировать массив объектов методом пирамидальной сортировки нужно:
+ * - Создать новый массив heap длины n+1, далее добавить кажлый объект по очереди и запустить метод просеивания вверх,
+ * чтобы в heap в ячейке с индексом 1 лежал самый приоритетный объект
+ * - Создать новый массив, в который будем помещать отсортированные объекты, берем объект с индеком 1 из heap и
+ * добавляем его в новый массив, в heap меняем местами первый и последний эл-ты, удаляем последний и
+ * запускаем метод просеивания вниз, чтобы в ячейке с индеком 1 оказался самый приоритетный эл-т, повторяем
+ * пока массив heap не опустеет
+ *
+ * Временная сложность - O(nlog(n))
+ */
 
 public class A {
+
+    public static final int HEAD_INDEX = 1;
+    public static final int SHIFT = 1;
+    public static final StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
@@ -29,39 +46,60 @@ public class A {
     }
 
     private static void sortContestantsAndPrint(List<Contestant> contestants) {
-        if (contestants.size() > 1) {
-            pyramidSort(contestants, 0, contestants.size() - 1);
-        }
-        contestants.forEach(contestant -> System.out.println(contestant.getLogin()));
+        List<Contestant> heap = addContestantsToHeap(contestants);
+        List<Contestant> sortContestants = sortHeap(heap);
+        sortContestants.forEach(contestant -> sb.append(contestant.getLogin()).append("\n"));
+        System.out.println(sb);
     }
 
-    public static int getPartition(List<Contestant> array, int left, int right) {
-        int pivotIndex = ThreadLocalRandom.current().nextInt(left, right + 1);
-        Contestant pivot = array.get(pivotIndex);
-
-        while (left <= right) {
-            while (array.get(left).compareTo(pivot) > 0) {
-                left++;
-            }
-            while (array.get(right).compareTo(pivot) < 0) {
-                right--;
-            }
-            if (left <= right) {
-                Collections.swap(array, left, right);
-                left++;
-                right--;
-            }
+    private static List<Contestant> addContestantsToHeap(List<Contestant> contestants) {
+        List<Contestant> heap = new ArrayList<>(contestants.size() + 1);
+        heap.add(null);
+        for (int i = 0; i < contestants.size(); i++) {
+            heap.add(contestants.get(i));
+            shiftUp(heap, i + SHIFT);
         }
-        return left;
+        return heap;
     }
 
-    public static void pyramidSort(List<Contestant> array, int first, int last) {
-        int partition = getPartition(array, first, last);
-        if (first < partition - 1) {
-            pyramidSort(array, first, partition - 1);
+    private static List<Contestant> sortHeap(List<Contestant> heap) {
+        List<Contestant> sortContestants = new ArrayList<>(heap.size() - 1);
+        for (int i = heap.size() - 1; i > 0; i--) {
+            sortContestants.add(heap.get(HEAD_INDEX));
+            Collections.swap(heap, HEAD_INDEX, i);
+            heap.remove(i);
+            shiftDown(heap, HEAD_INDEX);
         }
-        if (partition < last) {
-            pyramidSort(array, partition, last);
+        return sortContestants;
+    }
+
+    private static void shiftUp(List<Contestant> heap, int idx) {
+        if (idx == HEAD_INDEX) {
+            return;
+        }
+        int parent = idx / 2;
+        if (heap.get(idx).compareTo(heap.get(parent)) > 0) {
+            Collections.swap(heap, idx, parent);
+            shiftUp(heap, parent);
+        }
+    }
+
+    private static void shiftDown(List<Contestant> heap, int idx) {
+        int left = 2 * idx;
+        int right = 2 * idx + 1;
+        int size = heap.size() - 1;
+        if (left > size) {
+            return;
+        }
+        int largest;
+        if (right <= size && heap.get(left).compareTo(heap.get(right)) < 0) {
+            largest = right;
+        } else {
+            largest = left;
+        }
+        if (heap.get(idx).compareTo(heap.get(largest)) < 0) {
+            Collections.swap(heap, idx, largest);
+            shiftDown(heap, largest);
         }
     }
 }
