@@ -20,6 +20,7 @@ import java.util.Objects;
  * пока массив heap не опустеет
  *
  * Временная сложность - O(nlog(n))
+ * Пространственная сложность - O(1)
  */
 
 public class A {
